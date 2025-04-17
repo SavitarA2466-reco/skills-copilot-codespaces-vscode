@@ -1,14 +1,28 @@
-const http = require('http');
+// Create web serverconst express = require('express');
+const app = express();
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
-const hostname = '127.0.0.1';
-const port = 3000;
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello, World!\n');
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/comments', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Comment Schema
+const commentSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    comment: String,
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+// Comment Model
+const Comment = mongoose.model('Comment', commentSchema);
+
+// Routes
+app.get('/comments', async (req, res) => {
+    const comments = await Comment.find();
+    res.json(comments);
 });
